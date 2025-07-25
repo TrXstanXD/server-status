@@ -59,8 +59,11 @@
           playerCountEl.innerHTML = `👥 Players Online: ${data.players.online} / ${data.players.max}`;
 
           if (data.players.list && data.players.list.length > 0) {
-            const names = data.players.list.map(player => player.name_clean || player.name_raw || "Unknown");
-playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${names.join("<br>")}`;
+           const playersHTML = data.players.list.map(player => {
+  const name = player.name_clean || player.name_raw || "Unknown";
+  return `<img src="https://crafatar.com/avatars/${player.uuid}?size=24" alt="${name}'s avatar" style="vertical-align: middle; border-radius: 4px; margin-right: 6px;"> ${name}`;
+});
+playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${playersHTML.join("<br>")}`;
 
           } else {
             playersListEl.innerHTML = "No players are currently online.";
