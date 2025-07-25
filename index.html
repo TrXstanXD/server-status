@@ -59,7 +59,9 @@
           playerCountEl.innerHTML = `👥 Players Online: ${data.players.online} / ${data.players.max}`;
 
           if (data.players.list && data.players.list.length > 0) {
-            playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${data.players.list.join("<br>")}`;
+            const names = data.players.list.map(player => player.name_clean || player.name_raw || "Unknown");
+playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${names.join("<br>")}`;
+
           } else {
             playersListEl.innerHTML = "No players are currently online.";
           }
