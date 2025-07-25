@@ -8,16 +8,23 @@
       background-color: #1e1e1e;
       color: white;
       font-family: Arial, sans-serif;
-      padding: 50px;
       margin: 0;
+      padding: 0;
       overflow-x: hidden;
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 50px;
     }
 
     .status-box {
       background-color: #2c2c2c;
       padding: 20px;
       border-radius: 10px;
-      display: inline-block;
       min-width: 300px;
       text-align: center;
     }
@@ -40,8 +47,6 @@
       margin-top: 25px;
       text-align: left;
       max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
       background-color: #333;
       padding: 10px;
       border-radius: 8px;
@@ -115,7 +120,6 @@
     }
   </style>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -126,42 +130,33 @@
   <div id="whitelist-panel">
     <h3>Whitelisted Players</h3>
     <div id="whitelist-players">
-      <!-- Add names below -->
       <div class="whitelist-player"><img src="https://minotar.net/avatar/_twizzyy/24">_twizzyy</div>
       <div class="whitelist-player"><img src="https://minotar.net/avatar/cracraz/24">cracraz</div>
       <div class="whitelist-player"><img src="https://minotar.net/avatar/Hatoru_yuma/24">Hatoru_yuma</div>
     </div>
   </div>
 
-<div class="main-content">
-  <h1>🟢 notes-aims.gl.joinmc.link Server Status</h1>
+  <div class="main-content">
+    <h1>🟢 notes-aims.gl.joinmc.link Server Status</h1>
 
-  <div class="status-box">
-    <p id="server-status">Checking status...</p>
-    <p id="player-count"></p>
-    <div id="players-list"></div>
+    <div class="status-box">
+      <p id="server-status">Checking status...</p>
+      <p id="player-count"></p>
+      <div id="players-list"></div>
+    </div>
+
+    <ul id="log"></ul>
+
+    <p style="margin-top: 15px; font-size: 13px; color: #f55; max-width: 400px; text-align: center;">
+      ⚠️ Don't spam refresh — this page updates automatically, and the console gets glitchy when refreshing.
+    </p>
   </div>
-
-  <ul id="log"></ul>
-
-  <p style="margin-top: 15px; font-size: 13px; color: #f55; max-width: 400px; text-align: center;">
-    ⚠️ Don't spam refresh — this page updates automatically, and the console gets glitchy when refreshing.
-  </p>
-</div>
-
-
-  <ul id="log"></ul>
-
-  <p style="margin-top: 15px; font-size: 13px; color: #f55; max-width: 400px; margin-left: auto; margin-right: auto;">
-    ⚠️ Don't spam refresh — this page updates automatically, and the console gets glitchy when refreshing.
-  </p>
 
   <div style="position: fixed; bottom: 10px; left: 10px; font-size: 12px; color: #888;">
     Created by Tristan McBride / twizzy
   </div>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCGFGOrHfdzwU_pLC9FQ3krOrvcIzssoVc",
       authDomain: "logminecraft-37de3.firebaseapp.com",
@@ -193,7 +188,6 @@
       const li = document.createElement("li");
       li.textContent = item;
       logEl.appendChild(li);
-
       if (logEl.children.length > 10) {
         logEl.removeChild(logEl.firstChild);
       }
@@ -229,14 +223,12 @@
           } else {
             playersListEl.innerHTML = "No players are currently online.";
           }
-
         } else {
           statusEl.innerHTML = `❌ <span class="offline">Offline</span>`;
           playerCountEl.innerHTML = "";
           playersListEl.innerHTML = "";
           previousPlayers = new Set();
         }
-
       } catch (err) {
         statusEl.innerHTML = "⚠ Error checking status.";
         playerCountEl.innerHTML = "";
@@ -248,10 +240,8 @@
     fetchServerStatus();
     setInterval(fetchServerStatus, 10000);
 
-    // Whitelist toggle
     document.getElementById("toggle-whitelist").addEventListener("click", () => {
-      const panel = document.getElementById("whitelist-panel");
-      panel.classList.toggle("open");
+      document.getElementById("whitelist-panel").classList.toggle("open");
     });
   </script>
 </body>
