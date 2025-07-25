@@ -33,7 +33,28 @@
       font-size: 14px;
       color: #ccc;
     }
+
+    #log {
+      margin-top: 25px;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    #log li {
+      font-size: 13px;
+      color: #ddd;
+      list-style: none;
+      margin: 4px 0;
+    }
   </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
   <h1>🟢 notes-aims.gl.joinmc.link Server Status</h1>
@@ -43,11 +64,46 @@
     <div id="players-list"></div>
   </div>
 
+  <ul id="log"></ul>
+
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCGFGOrHfdzwU_pLC9FQ3krOrvcIzssoVc",
+      authDomain: "logminecraft-37de3.firebaseapp.com",
+      databaseURL: "https://logminecraft-37de3-default-rtdb.firebaseio.com",
+      projectId: "logminecraft-37de3",
+      storageBucket: "logminecraft-37de3.firebasestorage.app",
+      messagingSenderId: "197834072483",
+      appId: "1:197834072483:web:97da3f81b19b6582cefa16"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const logRef = db.ref("joinLeaveLog");
+
     const serverAddress = "notes-aims.gl.joinmc.link";
     const statusEl = document.getElementById("server-status");
     const playerCountEl = document.getElementById("player-count");
     const playersListEl = document.getElementById("players-list");
+    const logEl = document.getElementById("log");
+
+    let lastPlayers = [];
+
+    function logEvent(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      logRef.push(`${timestamp} - ${message}`);
+    }
+
+    logRef.on("child_added", snapshot => {
+      const item = snapshot.val();
+      const li = document.createElement("li");
+      li.textContent = item;
+      logEl.appendChild(li);
+
+      if (logEl.children.length > 10) {
+        logEl.removeChild(logEl.firstChild);
+      }
+    });
 
     async function fetchServerStatus() {
       try {
@@ -58,13 +114,21 @@
           statusEl.innerHTML = `✅ <span class="online">Online</span>`;
           playerCountEl.innerHTML = `👥 Players Online: ${data.players.online} / ${data.players.max}`;
 
-          if (data.players.list && data.players.list.length > 0) {
-           const playersHTML = data.players.list.map(player => {
-  const name = player.name_clean || player.name_raw || "Unknown";
-  return `<img src="https://crafatar.com/avatars/${player.uuid}?size=24" alt="${name}'s avatar" style="vertical-align: middle; border-radius: 4px; margin-right: 6px;"> ${name}`;
-});
-playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${playersHTML.join("<br>")}`;
+          const currentPlayers = (data.players.list || []).map(p => p.name_clean || p.name_raw);
+          const newPlayers = currentPlayers.filter(p => !lastPlayers.includes(p));
+          const leftPlayers = lastPlayers.filter(p => !currentPlayers.includes(p));
 
+          newPlayers.forEach(p => logEvent(`${p} joined`));
+          leftPlayers.forEach(p => logEvent(`${p} left`));
+
+          lastPlayers = currentPlayers;
+
+          if (currentPlayers.length > 0) {
+            const playersHTML = data.players.list.map(player => {
+              const name = player.name_clean || player.name_raw || "Unknown";
+              return `<img src="https://crafatar.com/avatars/${player.uuid}?size=24" alt="${name}'s avatar" style="vertical-align: middle; border-radius: 4px; margin-right: 6px;"> ${name}`;
+            });
+            playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${playersHTML.join("<br>")}`;
           } else {
             playersListEl.innerHTML = "No players are currently online.";
           }
@@ -73,6 +137,7 @@ playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${playersHTML.j
           statusEl.innerHTML = `❌ <span class="offline">Offline</span>`;
           playerCountEl.innerHTML = "";
           playersListEl.innerHTML = "";
+          lastPlayers = [];
         }
 
       } catch (err) {
@@ -83,8 +148,8 @@ playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${playersHTML.j
       }
     }
 
-    fetchServerStatus(); // Run on load
-    setInterval(fetchServerStatus, 10000); // Recheck every 30 seconds
+    fetchServerStatus();
+    setInterval(fetchServerStatus, 10000);
   </script>
 </body>
 </html>
