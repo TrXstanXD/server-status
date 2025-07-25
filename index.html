@@ -52,51 +52,18 @@
       margin: 4px 0;
     }
 
-    #whitelist-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #00b894;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      z-index: 999;
-    }
-
-    #whitelist-panel {
-      position: fixed;
-      top: 70px;
-      right: 0;
-      width: 250px;
-      height: 80vh;
-      background-color: #2c2c2c;
-      color: white;
-      overflow-y: auto;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      border-left: 2px solid #00b894;
-      padding: 15px;
-      z-index: 998;
-    }
-
-    #whitelist-panel.active {
-      transform: translateX(0);
-    }
-
-    .whitelist-player {
+    .player-entry {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
-      font-size: 14px;
+      margin: 6px 0;
+      justify-content: center;
     }
 
-    .whitelist-player img {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      margin-right: 10px;
+    .player-entry img {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      margin-right: 8px;
     }
   </style>
 
@@ -104,8 +71,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
-  
 <body>
+
   <h1>🟢 notes-aims.gl.joinmc.link Server Status</h1>
   <div class="status-box">
     <p id="server-status">Checking status...</p>
@@ -114,15 +81,13 @@
   </div>
 
   <ul id="log"></ul>
+
   <p style="margin-top: 15px; font-size: 13px; color: #f55; max-width: 400px; margin-left: auto; margin-right: auto;">
     ⚠️ Don't spam refresh — this page updates automatically, and the console gets glitchy when refreshing.
   </p>
 
-  <!-- Whitelist panel toggle and panel -->
-  <button id="whitelist-toggle">Whitelist</button>
-  <div id="whitelist-panel">
-    <h3>Whitelisted Players</h3>
-    <div id="whitelist-list"></div>
+  <div style="position: fixed; bottom: 10px; left: 10px; font-size: 12px; color: #888;">
+    Created by Tristan McBride / twizzy
   </div>
 
   <script>
@@ -179,14 +144,19 @@
 
           joined.forEach(name => logEvent(`${name} joined`));
           left.forEach(name => logEvent(`${name} left`));
+
           previousPlayers = currentPlayers;
 
           if (data.players.list && data.players.list.length > 0) {
             const playersHTML = data.players.list.map(player => {
               const name = player.name_clean || player.name_raw || "Unknown";
-              return `<img src="https://crafatar.com/avatars/${player.uuid}?size=24" alt="${name}'s avatar" style="vertical-align: middle; border-radius: 4px; margin-right: 6px;"> ${name}`;
+              return `
+                <div class="player-entry">
+                  <img src="https://minotar.net/avatar/${name}/24" alt="${name}'s avatar">
+                  ${name}
+                </div>`;
             });
-            playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${playersHTML.join("<br>")}`;
+            playersListEl.innerHTML = `<strong>Currently Online:</strong><br>${playersHTML.join("")}`;
           } else {
             playersListEl.innerHTML = "No players are currently online.";
           }
@@ -208,38 +178,7 @@
 
     fetchServerStatus();
     setInterval(fetchServerStatus, 10000);
-
-    // Whitelist Panel
-    const whitelistToggle = document.getElementById("whitelist-toggle");
-    const whitelistPanel = document.getElementById("whitelist-panel");
-    const whitelistList = document.getElementById("whitelist-list");
-
-    const whitelistUsernames = [
-      "_twizzyyy",
-      "cracraz",
-      "Hatoru_yuma"
-    ];
-
-    function generateWhitelist() {
-      whitelistList.innerHTML = "";
-      whitelistUsernames.forEach(name => {
-        const headUrl = `https://crafatar.com/avatars/${name}?size=32`;
-        const div = document.createElement("div");
-        div.className = "whitelist-player";
-        div.innerHTML = `<img src="${headUrl}" alt="${name}"> ${name}`;
-        whitelistList.appendChild(div);
-      });
-    }
-
-    whitelistToggle.addEventListener("click", () => {
-      whitelistPanel.classList.toggle("active");
-    });
-
-    generateWhitelist();
   </script>
 
-  <div style="position: fixed; bottom: 10px; left: 10px; font-size: 12px; color: #888;">
-    Created by Tristan McBride / twizzy
-  </div>
 </body>
 </html>
