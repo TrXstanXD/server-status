@@ -72,7 +72,7 @@
       authDomain: "logminecraft-37de3.firebaseapp.com",
       databaseURL: "https://logminecraft-37de3-default-rtdb.firebaseio.com",
       projectId: "logminecraft-37de3",
-      storageBucket: "logminecraft-37de3.firebasestorage.app",
+      storageBucket: "logminecraft-37de3.appspot.com",
       messagingSenderId: "197834072483",
       appId: "1:197834072483:web:97da3f81b19b6582cefa16"
     };
@@ -87,7 +87,7 @@
     const playersListEl = document.getElementById("players-list");
     const logEl = document.getElementById("log");
 
-    let lastPlayers = [];
+    let previousPlayers = new Set();
 
     function logEvent(message) {
       const timestamp = new Date().toLocaleTimeString();
@@ -114,16 +114,19 @@
           statusEl.innerHTML = `✅ <span class="online">Online</span>`;
           playerCountEl.innerHTML = `👥 Players Online: ${data.players.online} / ${data.players.max}`;
 
-          const currentPlayers = (data.players.list || []).map(p => p.name_clean || p.name_raw);
-          const newPlayers = currentPlayers.filter(p => !lastPlayers.includes(p));
-          const leftPlayers = lastPlayers.filter(p => !currentPlayers.includes(p));
+          const currentPlayers = new Set((data.players.list || []).map(p => p.name_clean || p.name_raw));
 
-          newPlayers.forEach(p => logEvent(`${p} joined`));
-          leftPlayers.forEach(p => logEvent(`${p} left`));
+          // Compare sets
+          const joined = [...currentPlayers].filter(name => !previousPlayers.has(name));
+          const left = [...previousPlayers].filter(name => !currentPlayers.has(name));
 
-          lastPlayers = currentPlayers;
+          joined.forEach(name => logEvent(`${name} joined`));
+          left.forEach(name => logEvent(`${name} left`));
 
-          if (currentPlayers.length > 0) {
+          previousPlayers = currentPlayers;
+
+          // Display online players
+          if (data.players.list && data.players.list.length > 0) {
             const playersHTML = data.players.list.map(player => {
               const name = player.name_clean || player.name_raw || "Unknown";
               return `<img src="https://crafatar.com/avatars/${player.uuid}?size=24" alt="${name}'s avatar" style="vertical-align: middle; border-radius: 4px; margin-right: 6px;"> ${name}`;
@@ -137,7 +140,7 @@
           statusEl.innerHTML = `❌ <span class="offline">Offline</span>`;
           playerCountEl.innerHTML = "";
           playersListEl.innerHTML = "";
-          lastPlayers = [];
+          previousPlayers = new Set(); // Reset when server is offline
         }
 
       } catch (err) {
