@@ -8,9 +8,15 @@
       background-color: #1e1e1e;
       color: white;
       font-family: Arial, sans-serif;
-      padding: 50px;
       margin: 0;
+      padding: 50px 20px;
       overflow-x: hidden;
+    }
+
+    .main-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      transition: margin 0.3s ease;
     }
 
     .status-box {
@@ -283,12 +289,18 @@
     fetchServerStatus();
     setInterval(fetchServerStatus, 10000);
 
-    // Toggle panels
+    // Toggle panels with auto-close
+    const whitelistPanel = document.getElementById("whitelist-panel");
+    const formPanel = document.getElementById("form-panel");
+
     document.getElementById("toggle-whitelist").addEventListener("click", () => {
-      document.getElementById("whitelist-panel").classList.toggle("open");
+      whitelistPanel.classList.toggle("open");
+      formPanel.classList.remove("open");
     });
+
     document.getElementById("toggle-form").addEventListener("click", () => {
-      document.getElementById("form-panel").classList.toggle("open");
+      formPanel.classList.toggle("open");
+      whitelistPanel.classList.remove("open");
     });
   </script>
 </body>
