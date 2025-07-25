@@ -8,8 +8,9 @@
       background-color: #1e1e1e;
       color: white;
       font-family: Arial, sans-serif;
-      text-align: center;
       padding: 50px;
+      margin: 0;
+      overflow-x: hidden;
     }
 
     .status-box {
@@ -18,6 +19,7 @@
       border-radius: 10px;
       display: inline-block;
       min-width: 300px;
+      text-align: center;
     }
 
     .online {
@@ -56,7 +58,6 @@
       display: flex;
       align-items: center;
       margin: 6px 0;
-      justify-content: center;
     }
 
     .player-entry img {
@@ -65,6 +66,53 @@
       border-radius: 4px;
       margin-right: 8px;
     }
+
+    /* Whitelist Panel */
+    #whitelist-panel {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 260px;
+      background-color: #2b2b2b;
+      color: white;
+      padding: 20px;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    #whitelist-panel.open {
+      transform: translateX(0);
+    }
+
+    #toggle-whitelist {
+      position: fixed;
+      right: 10px;
+      top: 10px;
+      z-index: 1100;
+      background-color: #444;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .whitelist-player {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+    }
+
+    .whitelist-player img {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      border-radius: 4px;
+    }
   </style>
 
   <!-- Firebase -->
@@ -72,6 +120,18 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
+
+  <button id="toggle-whitelist">📜 Whitelist</button>
+
+  <div id="whitelist-panel">
+    <h3>Whitelisted Players</h3>
+    <div id="whitelist-players">
+      <!-- Add names below -->
+      <div class="whitelist-player"><img src="https://minotar.net/avatar/_twizzyy/24">_twizzyy</div>
+      <div class="whitelist-player"><img src="https://minotar.net/avatar/cracraz/24">cracraz</div>
+      <div class="whitelist-player"><img src="https://minotar.net/avatar/Hatoru_yuma/24">Hatoru_yuma</div>
+    </div>
+  </div>
 
   <h1>🟢 notes-aims.gl.joinmc.link Server Status</h1>
   <div class="status-box">
@@ -91,6 +151,7 @@
   </div>
 
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCGFGOrHfdzwU_pLC9FQ3krOrvcIzssoVc",
       authDomain: "logminecraft-37de3.firebaseapp.com",
@@ -100,7 +161,6 @@
       messagingSenderId: "197834072483",
       appId: "1:197834072483:web:97da3f81b19b6582cefa16"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const logRef = db.ref("joinLeaveLog");
@@ -144,7 +204,6 @@
 
           joined.forEach(name => logEvent(`${name} joined`));
           left.forEach(name => logEvent(`${name} left`));
-
           previousPlayers = currentPlayers;
 
           if (data.players.list && data.players.list.length > 0) {
@@ -178,7 +237,12 @@
 
     fetchServerStatus();
     setInterval(fetchServerStatus, 10000);
-  </script>
 
+    // Whitelist toggle
+    document.getElementById("toggle-whitelist").addEventListener("click", () => {
+      const panel = document.getElementById("whitelist-panel");
+      panel.classList.toggle("open");
+    });
+  </script>
 </body>
 </html>
